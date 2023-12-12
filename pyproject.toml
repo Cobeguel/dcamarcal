@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "dcamarcal"
+version = "0.1.0"
+description = "DCA Martingale strategy calculator."
+authors = ["Cobeguel <cobegueljonsco@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
