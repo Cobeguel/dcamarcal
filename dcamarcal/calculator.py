@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field, InitVar
+from dataclasses import dataclass, field, InitVar, asdict
 from decimal import Decimal, ROUND_DOWN, ROUND_UP
 from typing import List
 from enum import Enum
@@ -8,13 +8,15 @@ def _to_decimal(value: float) -> Decimal:
         return value
     return Decimal(str(value))
 
-def round_decimal_values(d, precision=8):
+
+def round_decimal_values(d, precision=8) -> Decimal:
     for key, value in d.items():
         if isinstance(value, Decimal):
             d[key] = round(value, precision)
     return d
 
-def truncate(number: Decimal, direction: Decimal, decimals: int=0):
+
+def truncate(number: Decimal, direction: Decimal, decimals: int=0) -> Decimal:
     if decimals < 0:
         raise ValueError('decimals must be >= 0')
     str_format = "{0:.%sf}" % decimals
@@ -22,6 +24,7 @@ def truncate(number: Decimal, direction: Decimal, decimals: int=0):
         return Decimal(str_format.format(number.quantize(Decimal('1e' + str(-decimals)), rounding=ROUND_DOWN)))
     else:
         return Decimal(str_format.format(number.quantize(Decimal('1e-' + str(decimals)), rounding=ROUND_UP)))
+
 
 @dataclass
 class DCAMartingaleOrder:
@@ -51,9 +54,111 @@ class DCAMartingaleOrder:
             _to_decimal(total_volume)
         )
 
+    @property
+    def deviation_float(self) -> float:
+        return float(self.deviation)
+    
+    def set_float_deviation(self, value: float):
+        self.deviation = Decimal(str(value))
+
+    @property
+    def size_float(self) -> float:
+        return float(self.size)
+    
+    def set_float_size(self, value: float):
+        self.size = Decimal(str(value))
+    
+    @property
+    def volume_float(self) -> float:
+        return float(self.volume)
+    
+    def set_float_volume(self, value: float):
+        self.volume = Decimal(str(value))
+
+    @property
+    def price_float(self) -> float:
+        return float(self.price)
+    
+    def set_float_price(self, value: float):
+        self.price = Decimal(str(value))
+    
+    @property
+    def average_price_float(self) -> float:
+        return float(self.average_price)
+    
+    def set_float_average_price(self, value: float):
+        self.average_price = Decimal(str(value))
+    
+    @property
+    def required_price_float(self) -> float:
+        return float(self.required_price)
+    
+    def set_float_required_price(self, value: float):
+        self.required_price = Decimal(str(value))
+    
+    @property
+    def required_change_float(self) -> float:
+        return float(self.required_change)
+    
+    def set_float_required_change(self, value: float):
+        self.required_change = Decimal(str(value))
+    
+    @property
+    def total_size_float(self) -> float:
+        return float(self.total_size)
+    
+    def set_float_total_size(self, value: float):
+        self.total_size = Decimal(str(value))
+    
+    @property
+    def total_volume_float(self) -> float:
+        return float(self.total_volume)
+    
+    def set_float_total_volume(self, value: float):
+        self.total_volume = Decimal(str(value))
+
+
+def round_order_list(data: List[DCAMartingaleOrder], decimal_places: int=8) -> List[DCAMartingaleOrder]:
+    rounded = [round_decimal_values(vars(row), decimal_places) for row in data]
+    return [DCAMartingaleOrder(**row) for row in rounded]
+
+
+def format_decimal_print(value: Decimal, column_width: int) -> str:
+    if value == 0 or value == Decimal('0E-8'):
+        value = Decimal('0.0')
+    s = str(value)
+    left, right = s.split('.') if '.' in s else (s, '0')
+    right_length = column_width - len(left)
+    right = right.ljust(right_length - 1, '0')
+    return f"{left}.{right}"
+
+
+def print_tabular(orders: List[DCAMartingaleOrder]):
+    headers = ["Order", "Deviation", "Size", "Volume", "Price", "Average Price", "Required Price", "Required Change", "Total Size", "Total Volume"]
+    rows = [list(asdict(order).values()) for order in orders]
+    all_rows = [headers] + rows
+    max_lengths = [max(len(str(row[i])) for row in all_rows) for i in range(len(headers))]
+    formatted_data_rows = []
+    for row in rows:
+        formatted_row = []
+        for i, item in enumerate(row):
+            if i == 0:
+                formatted_row.append(str(item).rjust(max_lengths[i]))
+            else:
+                formatted_row.append(format_decimal_print(item, max_lengths[i]))
+        formatted_data_rows.append(formatted_row)
+
+    formatted_headers = [header.center(max_lengths[i]) for i, header in enumerate(headers)]
+
+    print('   '.join(formatted_headers))
+    for row in formatted_data_rows:
+        print('   '.join(row))
+
+
 class Direction(Enum):
     long = 1
     short = -1
+
 
 @dataclass
 class DCAMartingale():
@@ -127,35 +232,35 @@ class DCAMartingale():
     def price_deviation_float(self) -> float:
         return float(self.price_deviation)
 
-    def set_price_deviation(self, value: float):
+    def set_float_price_deviation(self, value: float):
         self.price_deviation = Decimal(str(value))
 
     @property
     def target_profit_float(self) -> float:
         return self.target_profit
 
-    def set_target_profit(self, value: float):
+    def set_float_target_profit(self, value: float):
         self.target_profit = Decimal(str(value))
 
     @property
     def order_scale_float(self) -> float:
         return float(self.order_scale)
 
-    def set_order_scale(self, value: float):
+    def set_float_order_scale(self, value: float):
         self.order_scale = Decimal(str(value))
 
     @property
     def volume_scale_float(self) -> float:
         return self.volume_scale
 
-    def set_volume_scale(self, value: float):
+    def set_float_volume_scale(self, value: float):
         self.volume_scale = Decimal(str(value))
 
     @property
     def initial_price_float(self) -> float:
         return float(self.initial_price)
 
-    def set_initial_price(self, value: float):
+    def set_float_initial_price(self, value: float):
         self.initial_price = Decimal(str(value))
 
     def _calculate_required_price(self, average_price: Decimal) -> Decimal:
@@ -168,9 +273,9 @@ class DCAMartingale():
         return self.initial_price - self._direction * self.initial_price * (deviation * Decimal(0.01))
 
     def calculate_table(self, price: float) -> List[DCAMartingaleOrder]:
-        self.set_initial_price(price)
+        self.set_float_initial_price(price)
         table = []
-        order = Decimal(0)
+        order = 0
         deviation = Decimal(0)
         size = self.base_order_size / self.initial_price
         volume = self.initial_price * size
