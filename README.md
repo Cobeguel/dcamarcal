@@ -21,7 +21,7 @@ The library is developed with the following key features in mind:
 Basic usage:
 
 ```python
-from dcamarcal import DCAMartingale, Direction
+from dcamarcal import DCAMartingale, Direction, round_order_list, print_tabular
 
 dca = DCAMartingale.from_float(
     direction=Direction.long, # or Direction.short
@@ -58,4 +58,4 @@ That generates the following order table:
 
 ## Current issues
 
-- The print_tabular function currently pads numbers with additional zeroes to align table columns, which might lead to visual inconsistency in decimal places.
+- The `print_tabular` function currently pads numbers with additional zeroes to align table columns, which might lead to visual inconsistency in decimal places.
