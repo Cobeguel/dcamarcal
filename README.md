@@ -21,7 +21,7 @@ The library is developed with the following key features in mind:
 Basic usage:
 
 ```python
-from dcamarcal import DCAMartingale, Direction, round_order_list, print_tabular
+from dcamarcal.calculator import DCAMartingale, Direction, round_order_list, print_tabular
 
 dca = DCAMartingale.from_float(
     direction=Direction.long, # or Direction.short
